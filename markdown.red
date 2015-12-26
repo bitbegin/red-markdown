@@ -5,12 +5,14 @@ debug: func [data] [if debug? [print data]]
 
 nochar: charset " ^-^/"
 chars: complement nochar
+digital: charset "0123456789"
 
 commands: [
       lf (last-rule-is-lf: true buffers: copy "")
     | header-rule
     | quote-rule
-    | list-rule
+    | ulist-rule
+    | olist-rule
     | lang-code-rule
     | block-code-rule
     | para-rule
@@ -49,10 +51,17 @@ quote-rule: [
 ]
 
 ;parse list
-list-rule: [
-      [["*" | "-" | "+"] some space copy list to lf lf next: [["*" | "-" | "+"] some space] :next (append buffers append (append copy "<li>" list) "</li>" debug ["continue list: " list]) list-rule]
-    | [["*" | "-" | "+"] some space copy list to lf lf next: [lf | chars] :next keep (append buffers append (append copy "<li>" list) "</li>" debug ["final list: " list] append copy "<ol>" buffers) keep ("</ol>^/")]
+ulist-rule: [
+      [["*" | "-" | "+"] some space copy list to lf lf next: [["*" | "-" | "+"] some space] :next (append buffers append (append copy "<li>" list) "</li>" debug ["continue list: " list]) ulist-rule]
+    | [["*" | "-" | "+"] some space copy list to lf lf next: [lf | chars] :next keep (append buffers append (append copy "<li>" list) "</li>" debug ["final list: " list] append copy "<ul>" buffers) keep ("</ul>^/")]
 ]
+
+;parse list
+olist-rule: [
+      [some digital "." some space copy list to lf lf next: [some digital "." some space] :next (append buffers append (append copy "<li>" list) "</li>" debug ["continue list: " list]) olist-rule]
+    | [some digital "." some space copy list to lf lf next: [lf | chars] :next keep (append buffers append (append copy "<li>" list) "</li>" debug ["final list: " list] append copy "<ol>" buffers) keep ("</ol>^/")]
+]
+
 
 str: read %test.md
 res: parse str rules: [collect [any commands]]
