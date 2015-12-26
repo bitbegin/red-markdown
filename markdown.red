@@ -9,13 +9,14 @@ chars: complement nochar
 commands: [
     lf
     | header-rule
+    | quote-rule
     | lang-code-rule
     | block-code-rule
 	| para-rule
     | skip
 ]
 
-;parse markdown header
+;parse header
 header-rule: [
       "######" some space keep ("<h6>") keep to [any [some space any "#"] lf] lf keep ("</h6>^/") 
     | "#####" some space keep ("<h5>") keep to [any [some space any "#"] lf] lf keep ("</h5>^/")
@@ -25,19 +26,25 @@ header-rule: [
     | "#" some space keep ("<h1>") keep to [any [some space any "#"] lf] lf keep ("</h1>^/")
 ]
 
-;parse markdown paragraph
+;parse paragraph
 para-rule: [copy para to 2 lf 2 lf keep ("<p>") keep (para) keep ("</p>^/")]
 
-;parse markdown lang code
+;parse lang code
 lang-code-rule: [
-	"```" copy lang to lf lf copy codes to "```^/" "```^/" (debug lang)
-	keep (append (append {<pre><code class="} lang) {">}) keep (codes) keep ("</code></pre>^/")
+	"```" copy lang to lf lf copy codes to "```^/" "```^/" (debug ["lang:" lang])
+	keep (append (append {<pre><code class="} lang) {">^/}) keep (codes) keep ("</code></pre>^/")
 ]
 
-;parse markdown code block
+;parse code block
 block-code-rule: [
-	some [space | tab] copy codes to [lf [chars | lf | end]] lf (debug lang: "default")
-	keep (append (append {<pre><code class="} lang) {">}) keep (codes) keep ("</code></pre>^/")
+	copy indent some [space | tab] copy codes to [lf [chars | lf]] lf (debug ["codes:^/" codes])
+	keep (append (append copy "<pre><code>^/" indent) codes) keep ("</code></pre>^/")
+]
+
+;parse quote
+quote-rule: [
+	">" copy quotes to [lf [chars | lf]] lf (debug ["quotes: " quotes])
+	keep (append copy "<blockquote>" quotes) keep ("</blockquote>^/")
 ]
 
 
