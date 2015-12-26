@@ -1,6 +1,6 @@
-# h1 more
+# h1 `code`
 
-## h2 more
+## `h2 code`
 
 
 # h1
