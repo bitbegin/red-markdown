@@ -5,10 +5,6 @@ debug: func [data] [if debug? [print data]]
 
 nochar: charset " ^-^/"
 chars: complement nochar
-quote-char: charset ">"
-unquote-chars: complement union quote-char nochar
-list-char: charset "*-+"
-unlist-chars: complement union list-char nochar
 
 commands: [
       lf (last-rule-is-lf: true buffers: copy "")
@@ -48,14 +44,14 @@ block-code-rule: [
 
 ;parse quote
 quote-rule: [
-      [">" some space copy quote to lf lf next: [lf | unquote-chars] :next keep (append buffers quote debug ["final quote: " quote] append copy "<blockquote>" buffers) keep ("</blockquote>^/")]
-    | [">" some space copy quote to [lf ">" some space] lf (append buffers quote debug ["continue quote: " quote]) quote-rule]
+      [">" some space copy quote to lf lf next: [">" some space] :next (append buffers quote debug ["continue quote: " quote]) quote-rule]
+    | [">" some space copy quote to lf lf next: [lf | chars] :next keep (append buffers quote debug ["final quote: " quote] append copy "<blockquote>" buffers) keep ("</blockquote>^/")]
 ]
 
 ;parse list
 list-rule: [
-      [["*" | "-" | "+"] some space copy list to lf lf next: [lf | unlist-chars] :next keep (append buffers append (append copy "<li>" list) "</li>" debug ["final list: " list] append copy "<ol>" buffers) keep ("</ol>^/")]
-    | [["*" | "-" | "+"] some space copy list to [lf ["*" | "-" | "+"] some space] lf (append buffers append (append copy "<li>" list) "</li>" debug ["continue list: " list]) list-rule]
+      [["*" | "-" | "+"] some space copy list to lf lf next: [["*" | "-" | "+"] some space] :next (append buffers append (append copy "<li>" list) "</li>" debug ["continue list: " list]) list-rule]
+    | [["*" | "-" | "+"] some space copy list to lf lf next: [lf | chars] :next keep (append buffers append (append copy "<li>" list) "</li>" debug ["final list: " list] append copy "<ol>" buffers) keep ("</ol>^/")]
 ]
 
 str: read %test.md
