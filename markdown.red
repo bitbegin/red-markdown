@@ -32,7 +32,7 @@ header-rule: [
 ]
 
 ;parse paragraph
-para-rule: [copy para to 2 lf 2 lf keep ("<p>") keep (para) keep ("</p>^/")]
+para-rule: [copy para to 2 lf 2 lf keep ("<p>") keep (inline-format copy para) keep ("</p>^/")]
 
 ;parse lang code
 lang-code-rule: [
@@ -54,8 +54,8 @@ quote-rule: [
 
 ;parse list
 ulist-rule: [
-      [["*" | "-" | "+"] some space copy list to lf lf next: [["*" | "-" | "+"] some space] :next (append buffers append (append copy "<li>" list) "</li>" debug ["continue list: " list]) ulist-rule]
-    | [["*" | "-" | "+"] some space copy list to lf lf next: [lf | chars] :next keep (append buffers append (append copy "<li>" list) "</li>" debug ["final list: " list] append copy "<ul>" buffers) keep ("</ul>^/")]
+      [copy tag ["*" | "-" | "+"] some space copy list to lf lf next: [tag some space] :next (append buffers append (append copy "<li>" list) "</li>" debug ["continue list: " list]) ulist-rule]
+    | [copy tag ["*" | "-" | "+"] some space copy list to lf lf next: [lf | chars] :next keep (append buffers append (append copy "<li>" list) "</li>" debug ["final list: " list] append copy "<ul>" buffers) keep ("</ul>^/")]
 ]
 
 ;parse list
@@ -64,18 +64,38 @@ olist-rule: [
     | [some digital "." some space copy list to lf lf next: [lf | chars] :next keep (append buffers append (append copy "<li>" list) "</li>" debug ["final list: " list] append copy "<ol>" buffers) keep ("</ol>^/")]
 ]
 
-;parse inline
+;inline format
 inline-format: function [buff [string!] return: [string!]][
-    either parse buff code-inline [
+    res: code-format buff
+    res: emphasis-format res
+]
+
+;parse code inline
+code-format: function [buff [string!] return: [string!]][
+    either parse buff code-inline-rule [
         temp-buff
     ][
         buff
     ]
 ]
 
-;parse code inline
-code-inline: [
-    copy code-header to "`" "`" copy code-text to "`" "`" copy code-end to end (debug ["code-header: " code-header "code-text: " code-text "code-end: " code-end] temp-buff: copy code-header temp-buff: append (append (append (append temp-buff "<code>") code-text) "</code>") code-end debug temp-buff)
+;code inline rule
+code-inline-rule: [
+    copy code-header to "`" "`" copy code-text to ["`" | lf fail] "`" copy code-end to end (debug ["code-header: " code-header "code-text: " code-text "code-end: " code-end] temp-buff: copy code-header temp-buff: append (append (append (append temp-buff "<code>") code-text) "</code>") code-end debug ["format: " temp-buff])
+]
+
+;parse emphasis inline
+emphasis-format: function [buff [string!] return: [string!]][
+    either parse buff emphasis-inline-rule [
+        temp-buff
+    ][
+        buff
+    ]
+]
+
+;emphasis inline rule
+emphasis-inline-rule: [
+    copy em-header to ["*" | "_"] copy em ["*" | "_"] copy em-text to [em | lf fail] em copy em-end to end (debug ["em-header: " em-header "em-text: " em-text "em-end: " em-end] temp-buff: copy em-header temp-buff: append (append (append (append temp-buff "<em>") em-text) "</em>") em-end debug ["format: " temp-buff])
 ]
 
 set 'parse-markdown function [str [string!] return: [string!]] [

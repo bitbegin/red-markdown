@@ -1,11 +1,11 @@
-# h1 `code`
+# h1 `code` *emphasis*
 
-## `h2 code`
+## `h2 code` _emphasis_ *emphasis_
 
 
 # h1
 
-para 1
+para 1 `code` *emphasis* *emphasis_
 
 ## h2
 
