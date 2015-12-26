@@ -6,13 +6,15 @@ debug: func [data] [if debug? [print data]]
 nochar: charset " ^-^/"
 chars: complement nochar
 quote-char: charset " >^-^/"
-unquote-char: complement quote-char
-
+unquote-chars: complement quote-char
+list-char: charset " *-+^-^/"
+unlist-chars: complement list-char
 
 commands: [
-      lf (last-rule-is-lf: true quotes: copy "")
+      lf (last-rule-is-lf: true buffers: copy "")
     | header-rule
     | quote-rule
+    | list-rule
     | lang-code-rule
     | block-code-rule
 	| para-rule
@@ -46,10 +48,15 @@ block-code-rule: [
 
 ;parse quote
 quote-rule: [
-	  [">" some space copy quote to lf lf next: [lf | unquote-char] :next keep (append quotes quote debug ["final quote: " quote] append copy "<blockquote>" quotes) keep ("</blockquote>^/")]
-	| [">" some space copy quote to [lf ">" some space] lf (append quotes quote debug ["continue quote: " quote]) quote-rule]
+	  [">" some space copy quote to lf lf next: [lf | unquote-chars] :next keep (append buffers quote debug ["final quote: " quote] append copy "<blockquote>" buffers) keep ("</blockquote>^/")]
+	| [">" some space copy quote to [lf ">" some space] lf (append buffers quote debug ["continue quote: " quote]) quote-rule]
 ]
 
+;parse list
+list-rule: [
+	  [["*" | "-" | "+"] some space copy list to lf lf next: [lf | unlist-chars] :next keep (append buffers append (append copy "<li>" list) "</li>" debug ["final list: " list] append copy "<ol>" buffers) keep ("</ol>^/")]
+	| [["*" | "-" | "+"] some space copy list to [lf ["*" | "-" | "+"] some space] lf (append buffers append (append copy "<li>" list) "</li>" debug ["continue list: " list]) list-rule]
+]
 
 str: read %test.md
 res: parse str rules: [collect [any commands]]
