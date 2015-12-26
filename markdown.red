@@ -9,7 +9,8 @@ chars: complement nochar
 commands: [
     lf
     | header-rule
-    | code-rule
+    | lang-code-rule
+    | block-code-rule
 	| para-rule
     | skip
 ]
@@ -27,10 +28,16 @@ header-rule: [
 ;parse markdown paragraph
 para-rule: [copy para to 2 lf 2 lf keep ("<p>") keep (para) keep ("</p>^/")]
 
-;parse markdown code
-code-rule: [
-	"```" copy lang to lf lf copy codes to "```^/" "```^/"
-	keep (append (append {<code class="} lang) {">}) keep (codes) keep ("</code>^/")
+;parse markdown lang code
+lang-code-rule: [
+	"```" copy lang to lf lf copy codes to "```^/" "```^/" (debug lang)
+	keep (append (append {<pre><code class="} lang) {">}) keep (codes) keep ("</code></pre>^/")
+]
+
+;parse markdown code block
+block-code-rule: [
+	some [space | tab] copy codes to [lf [chars | lf | end]] lf (debug lang: "default")
+	keep (append (append {<pre><code class="} lang) {">}) keep (codes) keep ("</code></pre>^/")
 ]
 
 
