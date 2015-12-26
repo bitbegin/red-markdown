@@ -5,9 +5,12 @@ debug: func [data] [if debug? [print data]]
 
 nochar: charset " ^-^/"
 chars: complement nochar
+quote-char: charset " >^-^/"
+unquote-char: complement quote-char
+
 
 commands: [
-    lf
+      lf (last-rule-is-lf: true quotes: copy "")
     | header-rule
     | quote-rule
     | lang-code-rule
@@ -43,8 +46,8 @@ block-code-rule: [
 
 ;parse quote
 quote-rule: [
-	">" copy quotes to [lf [chars | lf]] lf (debug ["quotes: " quotes])
-	keep (append copy "<blockquote>" quotes) keep ("</blockquote>^/")
+	  [">" some space copy quote to lf lf next: [lf | unquote-char] :next keep (append quotes quote debug ["final quote: " quote] append copy "<blockquote>" quotes) keep ("</blockquote>^/")]
+	| [">" some space copy quote to [lf ">" some space] lf (append quotes quote debug ["continue quote: " quote]) quote-rule]
 ]
 
 
