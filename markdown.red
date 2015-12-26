@@ -4,6 +4,11 @@ debug?: on
 debug: func [data] [if debug? [print data]]
 
 
+text: none
+tab-blocks: none
+lang: none
+codes: none
+
 rules: [some commands]
 commands: [
 	;here: (debug ["---PARSE:" copy/part here find here lf])
@@ -30,6 +35,10 @@ text-line:  [some space copy text thru lf]
 tab-block: [some space copy tab-blocks to [lf chars]]
 paragraph: [copy para some [chars thru lf]]
 code: ["```" copy lang thru lf copy codes to "```^/" "```^/"]
+
+
+header-rule: [some space copy header thru [some space any "#" lf]]
+
 
 str: read %test.md
 parse str rules
