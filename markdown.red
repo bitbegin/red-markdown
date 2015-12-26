@@ -5,10 +5,10 @@ debug: func [data] [if debug? [print data]]
 
 nochar: charset " ^-^/"
 chars: complement nochar
-quote-char: charset " >^-^/"
-unquote-chars: complement quote-char
-list-char: charset " *-+^-^/"
-unlist-chars: complement list-char
+quote-char: charset ">"
+unquote-chars: complement union quote-char nochar
+list-char: charset "*-+"
+unlist-chars: complement union list-char nochar
 
 commands: [
       lf (last-rule-is-lf: true buffers: copy "")
@@ -17,7 +17,7 @@ commands: [
     | list-rule
     | lang-code-rule
     | block-code-rule
-	| para-rule
+    | para-rule
     | skip
 ]
 
@@ -36,26 +36,26 @@ para-rule: [copy para to 2 lf 2 lf keep ("<p>") keep (para) keep ("</p>^/")]
 
 ;parse lang code
 lang-code-rule: [
-	"```" copy lang to lf lf copy codes to "```^/" "```^/" (debug ["lang:" lang])
-	keep (append (append {<pre><code class="} lang) {">^/}) keep (codes) keep ("</code></pre>^/")
+    "```" copy lang to lf lf copy codes to "```^/" "```^/" (debug ["lang:" lang])
+    keep (append (append {<pre><code class="} lang) {">^/}) keep (codes) keep ("</code></pre>^/")
 ]
 
 ;parse code block
 block-code-rule: [
-	copy indent some [space | tab] copy codes to [lf [chars | lf]] lf (debug ["codes:^/" codes])
-	keep (append (append copy "<pre><code>^/" indent) codes) keep ("</code></pre>^/")
+    copy indent some [space | tab] copy codes to [lf [chars | lf]] lf (debug ["codes:^/" codes])
+    keep (append (append copy "<pre><code>^/" indent) codes) keep ("</code></pre>^/")
 ]
 
 ;parse quote
 quote-rule: [
-	  [">" some space copy quote to lf lf next: [lf | unquote-chars] :next keep (append buffers quote debug ["final quote: " quote] append copy "<blockquote>" buffers) keep ("</blockquote>^/")]
-	| [">" some space copy quote to [lf ">" some space] lf (append buffers quote debug ["continue quote: " quote]) quote-rule]
+      [">" some space copy quote to lf lf next: [lf | unquote-chars] :next keep (append buffers quote debug ["final quote: " quote] append copy "<blockquote>" buffers) keep ("</blockquote>^/")]
+    | [">" some space copy quote to [lf ">" some space] lf (append buffers quote debug ["continue quote: " quote]) quote-rule]
 ]
 
 ;parse list
 list-rule: [
-	  [["*" | "-" | "+"] some space copy list to lf lf next: [lf | unlist-chars] :next keep (append buffers append (append copy "<li>" list) "</li>" debug ["final list: " list] append copy "<ol>" buffers) keep ("</ol>^/")]
-	| [["*" | "-" | "+"] some space copy list to [lf ["*" | "-" | "+"] some space] lf (append buffers append (append copy "<li>" list) "</li>" debug ["continue list: " list]) list-rule]
+      [["*" | "-" | "+"] some space copy list to lf lf next: [lf | unlist-chars] :next keep (append buffers append (append copy "<li>" list) "</li>" debug ["final list: " list] append copy "<ol>" buffers) keep ("</ol>^/")]
+    | [["*" | "-" | "+"] some space copy list to [lf ["*" | "-" | "+"] some space] lf (append buffers append (append copy "<li>" list) "</li>" debug ["continue list: " list]) list-rule]
 ]
 
 str: read %test.md
