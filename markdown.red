@@ -83,7 +83,7 @@ code-format: function [buff [string!] return: [string!]][
 
 ;code inline rule
 code-inline-rule: [
-    start: to "`" copy tag "`" to tag tag stop:
+    start: to copy tag "`" tag to tag tag stop:
     (replace replace start tag "<code>" tag "</code>" skip stop (6 * 2 + 1 - 1 * 2))
 ]
 
@@ -94,7 +94,7 @@ emphasis-format: function [buff [string!] return: [string!]][
 
 ;emphasis inline rule
 emphasis-inline-rule: [
-    start: to ["*" | "_"] copy tag ["*" | "_"] to tag tag stop:
+    start: to copy tag ["*" | "_"] tag to tag tag stop:
     (replace replace start tag "<em>" tag "</em>" skip stop (4 * 2 + 1 - 1 * 2)) :stop
 ]
 
@@ -105,7 +105,7 @@ strong-format: function [buff [string!] return: [string!]][
 
 ;strong inline rule
 strong-inline-rule: [
-    start: to ["**" | "__"] copy tag ["**" | "__"] to tag tag stop: 
+    start: to copy tag ["**" | "__"] tag to tag tag stop: 
     (replace replace start tag "<strong>" tag "</strong>" skip stop (8 * 2 + 1 - 2 * 2)) :stop
 ]
 
