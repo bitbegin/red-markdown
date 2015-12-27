@@ -96,7 +96,7 @@ emphasis-format: function [buff [string!] return: [string!]][
 
 ;emphasis inline rule
 emphasis-inline-rule: [
-    copy em-header to ["*" | "_"] copy em ["*" | "_"] copy em-text to [em | lf fail] em copy em-end to end (debug ["em-header: " em-header "em-text: " em-text "em-end: " em-end] temp-buff: copy em-header temp-buff: append (append (append (append temp-buff "<em>") em-text) "</em>") em-end debug ["format: " temp-buff])
+    copy em-header to ["*" | "_"] copy tag ["*" | "_"] copy em-text to [tag | lf fail] tag copy em-end to end (debug ["em-header: " em-header "em-text: " em-text "em-end: " em-end] temp-buff: copy em-header temp-buff: append (append (append (append temp-buff "<em>") em-text) "</em>") em-end debug ["format: " temp-buff])
 ]
 
 ;parse strong inline
@@ -110,7 +110,7 @@ strong-format: function [buff [string!] return: [string!]][
 
 ;strong inline rule
 strong-inline-rule: [
-    copy strong-header to ["**" | "__"] copy strong ["**" | "__"] copy strong-text to [strong | lf fail] strong copy strong-end to end (debug ["strong-header: " strong-header "strong-text: " strong-text "strong-end: " strong-end] temp-buff: copy strong-header temp-buff: append (append (append (append temp-buff "<strong>") strong-text) "</strong>") strong-end debug ["format: " temp-buff])
+    copy strong-header to ["**" | "__"] copy tag ["**" | "__"] copy strong-text to [tag | lf fail] tag copy strong-end to end (debug ["strong-header: " strong-header "strong-text: " strong-text "strong-end: " strong-end] temp-buff: copy strong-header temp-buff: append (append (append (append temp-buff "<strong>") strong-text) "</strong>") strong-end debug ["format: " temp-buff])
 ]
 
 set 'parse-markdown function [str [string!] return: [string!]] [

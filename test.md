@@ -1,11 +1,27 @@
 # h1 `code` *emphasis*
 
-## `h2 code` _emphasis_ *emphasis_ **strong** __strong text__
+## `h2 code` _emphasis_ **strong** __strong text__
+
+inline test:   
+
+__strong text__ **strong** 
+
+**strong** __strong text__
+
+*emphasis* _emphasis_
+
+_emphasis_ *emphasis*
+
+**strong** *emphasis* 
+
+**strong** _emphasis_
+
+
 
 
 # h1
 
-para 1 `code` *emphasis* *emphasis_ **strong** __strong text__
+para 1 `code` *emphasis* __strong text__ **strong** 
 
 ## h2
 
