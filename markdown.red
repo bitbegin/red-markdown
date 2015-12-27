@@ -124,26 +124,30 @@ link-format: function [buff [string!] return: [string!]][
 
 ;link inline rule
 link-inline-rule: [
-      to "![" stop: "![" copy text to "](" "](" copy link to ")" ")" (remove/part stop (2 + 2 + 1 + (length? text) + (length? link))  
-        links: copy "" 
-        either find/tail link space [
+      to "![" remove ["![" copy text to "](" "](" copy link to ")" ")" (
+        title: none 
+        if find/tail link space [
             title: copy find/tail link space
-            link: copy/part link find link space
-            append (append (append (append (append (append (append links {<img src="}) link) {" alt="}) text) {" title=}) title) { />}
-        ][
-            append (append (append (append (append links {<img src="}) link) {" alt="}) text) {" />}
-        ]
-        stop: insert stop links) :stop    
-    | to "[" stop: "[" copy text to "](" "](" copy link to ")" ")" (remove/part stop (1 + 2 + 1 + (length? text) + (length? link))  
-        links: copy "" 
-        either find/tail link space [
+            link: copy/part link find link space])
+        if (title)][insert {<img src="} insert (link) insert {" alt="} insert (text) insert {" title=} insert (title) insert { />}]
+    | to "![" remove ["![" copy text to "](" "](" copy link to ")" ")" (
+        title: none 
+        if find/tail link space [
             title: copy find/tail link space
-            link: copy/part link find link space
-            append (append (append (append (append (append (append links {<a href="}) link) {" title=}) title) {>}) text) {</a>}
-        ][
-            append (append (append (append (append links {<a href="}) link) {">}) text) {</a>}
-        ]
-        stop: insert stop links) :stop    
+            link: copy/part link find link space])
+        if (not title)][insert {<img src="} insert (link) insert {" alt="} insert (text) insert {" />}]
+    | to "[" remove ["[" copy text to "](" "](" copy link to ")" ")" (
+        title: none 
+        if find/tail link space [
+            title: copy find/tail link space
+            link: copy/part link find link space])
+        if (not title)][insert {<a href="} insert (link) insert {">} insert (text) insert {</a>}]
+    | to "[" remove ["[" copy text to "](" "](" copy link to ")" ")" (
+        title: none 
+        if find/tail link space [
+            title: copy find/tail link space
+            link: copy/part link find link space])
+        if (title)][insert {<a href="} insert (link) insert {" title=} insert (title) insert {>} insert (text) insert {</a>}] 
 ]
 
 set 'parse-markdown function [str [string!] return: [string!]] [
