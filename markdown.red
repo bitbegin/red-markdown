@@ -1,13 +1,19 @@
-Red []
+Red [
+    Title: "markdown parser in red"
+    Version: 0.1.0
+    Author: "bitbegin"
+    Purpose: {
+        A very small markdown parser written in red.
+    }
+]
 
-debug?: on
+context [;context begin
+
+debug?: off
 debug: func [data] [if debug? [print data]]
-
 nochar: charset " ^-^/"
 chars: complement nochar
 digital: charset "0123456789"
-
-context [;context begin
 
 rules: [
       lf (last-rule-is-lf: true buffers: copy "")
@@ -146,8 +152,3 @@ set 'parse-markdown function [str [string!] return: [string!]] [
 
 ];context end
 
-
-str: read %test.md
-res: parse-markdown str
-
-write %out.html form res
