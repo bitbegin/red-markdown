@@ -66,13 +66,14 @@ olist-rule: [
 
 ;inline format
 inline-format: function [buff [string!] return: [string!]][
-    debug ["origin:" lf buff]
     code-format buff
-    debug ["code-format:" lf buff]
+    ;debug ["code-format:" lf buff]
     strong-format buff
-    debug ["strong-format:" lf buff]
+    ;debug ["strong-format:" lf buff]
     emphasis-format buff
-    debug ["emphasis-format:" lf buff]
+    ;debug ["emphasis-format:" lf buff]
+    link-format buff
+    ;debug ["link-format:" lf buff]
     buff
 ]
 
@@ -84,7 +85,7 @@ code-format: function [buff [string!] return: [string!]][
 ;code inline rule
 code-inline-rule: [
     start: to copy tag "`" tag to tag tag stop:
-    (replace replace start tag "<code>" tag "</code>" skip stop (6 * 2 + 1 - 1 * 2))
+    (replace replace start tag "<code>" tag "</code>" skip stop ((length? "<code>") * 2 + 1 - (length? "`") * 2))
 ]
 
 ;parse emphasis inline
@@ -95,7 +96,7 @@ emphasis-format: function [buff [string!] return: [string!]][
 ;emphasis inline rule
 emphasis-inline-rule: [
     start: to copy tag ["*" | "_"] tag to tag tag stop:
-    (replace replace start tag "<em>" tag "</em>" skip stop (4 * 2 + 1 - 1 * 2)) :stop
+    (replace replace start tag "<em>" tag "</em>" skip stop ((length? "<em>") * 2 + 1 - (length? "*") * 2)) :stop
 ]
 
 ;parse strong inline
@@ -106,7 +107,37 @@ strong-format: function [buff [string!] return: [string!]][
 ;strong inline rule
 strong-inline-rule: [
     start: to copy tag ["**" | "__"] tag to tag tag stop: 
-    (replace replace start tag "<strong>" tag "</strong>" skip stop (8 * 2 + 1 - 2 * 2)) :stop
+    (replace replace start tag "<strong>" tag "</strong>" skip stop ((length? "<strong>") * 2 + 1 - (length? "**") * 2)) :stop
+]
+
+
+;parse link inline
+link-format: function [buff [string!] return: [string!]][
+    parse buff [any link-inline-rule]
+]
+
+;link inline rule
+link-inline-rule: [
+      to "![" stop: "![" copy text to "](" "](" copy link to ")" ")" (remove/part stop (2 + 2 + 1 + (length? text) + (length? link))  
+        links: copy "" 
+        either find/tail link space [
+            title: copy find/tail link space
+            link: copy/part link find link space
+            append (append (append (append (append (append (append links {<img src="}) link) {" alt="}) text) {" title=}) title) { />}
+        ][
+            append (append (append (append (append links {<img src="}) link) {" alt="}) text) {" />}
+        ]
+        stop: insert stop links) :stop    
+    | to "[" stop: "[" copy text to "](" "](" copy link to ")" ")" (remove/part stop (1 + 2 + 1 + (length? text) + (length? link))  
+        links: copy "" 
+        either find/tail link space [
+            title: copy find/tail link space
+            link: copy/part link find link space
+            append (append (append (append (append (append (append links {<a href="}) link) {" title=}) title) {>}) text) {</a>}
+        ][
+            append (append (append (append (append links {<a href="}) link) {">}) text) {</a>}
+        ]
+        stop: insert stop links) :stop    
 ]
 
 set 'parse-markdown function [str [string!] return: [string!]] [

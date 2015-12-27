@@ -17,7 +17,13 @@ _emphasis_ *emphasis*
 **strong** _emphasis_
 
 
+link test:
 
+This is an [example link](http://example.com/).
+
+This is an [example link with title](http://example.com/ "example title").
+
+This is an image link ![alt text](http://path/to/img.jpg "Title")
 
 # h1
 
