@@ -66,51 +66,47 @@ olist-rule: [
 
 ;inline format
 inline-format: function [buff [string!] return: [string!]][
-    res: code-format buff
-    res: strong-format res
-    res: emphasis-format res
+    debug ["origin:" lf buff]
+    code-format buff
+    debug ["code-format:" lf buff]
+    strong-format buff
+    debug ["strong-format:" lf buff]
+    emphasis-format buff
+    debug ["emphasis-format:" lf buff]
+    buff
 ]
 
 ;parse code inline
 code-format: function [buff [string!] return: [string!]][
-    either parse buff code-inline-rule [
-        temp-buff
-    ][
-        buff
-    ]
+    parse buff [any code-inline-rule]
 ]
 
 ;code inline rule
 code-inline-rule: [
-    copy code-header to "`" "`" copy code-text to ["`" | lf fail] "`" copy code-end to end (debug ["code-header: " code-header "code-text: " code-text "code-end: " code-end] temp-buff: copy code-header temp-buff: append (append (append (append temp-buff "<code>") code-text) "</code>") code-end debug ["format: " temp-buff])
+    start: to "`" copy tag "`" to tag tag stop:
+    (replace replace start tag "<code>" tag "</code>" skip stop (6 * 2 + 1 - 1 * 2))
 ]
 
 ;parse emphasis inline
 emphasis-format: function [buff [string!] return: [string!]][
-    either parse buff emphasis-inline-rule [
-        temp-buff
-    ][
-        buff
-    ]
+    parse buff [any emphasis-inline-rule]
 ]
 
 ;emphasis inline rule
 emphasis-inline-rule: [
-    copy em-header to ["*" | "_"] copy tag ["*" | "_"] copy em-text to [tag | lf fail] tag copy em-end to end (debug ["em-header: " em-header "em-text: " em-text "em-end: " em-end] temp-buff: copy em-header temp-buff: append (append (append (append temp-buff "<em>") em-text) "</em>") em-end debug ["format: " temp-buff])
+    start: to ["*" | "_"] copy tag ["*" | "_"] to tag tag stop:
+    (replace replace start tag "<em>" tag "</em>" skip stop (4 * 2 + 1 - 1 * 2)) :stop
 ]
 
 ;parse strong inline
 strong-format: function [buff [string!] return: [string!]][
-    either parse buff strong-inline-rule [
-        temp-buff
-    ][
-        buff
-    ]
+    parse buff [any strong-inline-rule]
 ]
 
 ;strong inline rule
 strong-inline-rule: [
-    copy strong-header to ["**" | "__"] copy tag ["**" | "__"] copy strong-text to [tag | lf fail] tag copy strong-end to end (debug ["strong-header: " strong-header "strong-text: " strong-text "strong-end: " strong-end] temp-buff: copy strong-header temp-buff: append (append (append (append temp-buff "<strong>") strong-text) "</strong>") strong-end debug ["format: " temp-buff])
+    start: to ["**" | "__"] copy tag ["**" | "__"] to tag tag stop: 
+    (replace replace start tag "<strong>" tag "</strong>" skip stop (8 * 2 + 1 - 2 * 2)) :stop
 ]
 
 set 'parse-markdown function [str [string!] return: [string!]] [
