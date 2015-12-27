@@ -90,8 +90,8 @@ code-format: function [buff [string!] return: [string!]][
 
 ;code inline rule
 code-inline-rule: [
-    start: to copy tag "`" tag to tag tag stop:
-    (replace replace start tag "<code>" tag "</code>" skip stop ((length? "<code>") * 2 + 1 - (length? "`") * 2))
+    to copy tag "`" start: tag to tag tag :start
+    remove tag insert "<code>" to tag remove tag insert "</code>"
 ]
 
 ;parse emphasis inline
@@ -101,8 +101,8 @@ emphasis-format: function [buff [string!] return: [string!]][
 
 ;emphasis inline rule
 emphasis-inline-rule: [
-    start: to copy tag ["*" | "_"] tag to tag tag stop:
-    (replace replace start tag "<em>" tag "</em>" skip stop ((length? "<em>") * 2 + 1 - (length? "*") * 2)) :stop
+    to copy tag ["*" | "_"] start: tag to tag tag :start
+    remove tag insert "<em>" to tag remove tag insert "</em>"
 ]
 
 ;parse strong inline
@@ -112,8 +112,8 @@ strong-format: function [buff [string!] return: [string!]][
 
 ;strong inline rule
 strong-inline-rule: [
-    start: to copy tag ["**" | "__"] tag to tag tag stop: 
-    (replace replace start tag "<strong>" tag "</strong>" skip stop ((length? "<strong>") * 2 + 1 - (length? "**") * 2)) :stop
+    to copy tag ["**" | "__"] start: tag to tag tag :start
+    remove tag insert "<strong>" to tag remove tag insert "</strong>"
 ]
 
 
