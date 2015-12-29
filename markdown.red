@@ -80,19 +80,19 @@ olist-rule: [
 
 ;code inline rule
 code-inline-rule: [
-    to copy tag "`" start: tag to tag :start (print "code inline")
+    to copy tag "`" start: tag to tag :start
     remove tag insert "<code>" to tag remove tag insert "</code>"
 ]
 
 ;emphasis inline rule
 emphasis-inline-rule: [
-    to copy tag ["*" | "_"] start: tag to tag :start (print "emphasis inline")
+    to copy tag ["*" | "_"] start: tag to tag :start
     remove tag insert "<em>" to tag remove tag insert "</em>"
 ]
 
 ;strong inline rule
 strong-inline-rule: [
-    to copy tag ["**" | "__"] start: tag to tag :start (print "strong inline")
+    to copy tag ["**" | "__"] start: tag to tag :start
     remove tag insert "<strong>" to tag remove tag insert "</strong>"
 ]
 
@@ -125,7 +125,7 @@ link-inline-rule: [
 ]
 
 parse-code-inline: [
-    thru copy btag ["<p>" | "<h1>" | "<h2>" | "<h3>" | "<h4>" | "<h5>" | "<h6>"] (btag: head insert next btag "/" print btag) copy inline-text start: to btag 
+    thru copy btag ["<p>" | "<h1>" | "<h2>" | "<h3>" | "<h4>" | "<h5>" | "<h6>"] (btag: head insert next btag "/") copy inline-text start: to btag 
         :start remove to btag
             insert (parse inline-text [ahead any code-inline-rule ahead any strong-inline-rule ahead any emphasis-inline-rule any link-inline-rule] inline-text)]
 
