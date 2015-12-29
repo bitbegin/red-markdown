@@ -7,7 +7,7 @@ Red [
     }
 ]
 
-context [;context begin
+context [
 
 debug?: off
 debug: func [data] [if debug? [print data]]
@@ -27,7 +27,6 @@ main-rules: [
     | skip thru lf
 ]
 
-;parse header
 header-rule: [
       remove ["#" some space] insert ("<h1>") to copy tag [any [some space any "#"] lf] remove tag insert "</h1>^/"
     | remove ["##" some space] insert ("<h2>") to copy tag [any [some space any "#"] lf] remove tag insert "</h2>^/"
@@ -37,16 +36,13 @@ header-rule: [
     | remove ["######" some space] insert ("<h6>") to copy tag [any [some space any "#"] lf] remove tag insert "</h6>^/"
 ]
 
-;parse paragraph
 para-rule: [ahead [to lf] insert "<p>" to 2 lf remove 2 lf insert "</p>^/"]
 
-;parse lang code
 lang-code-rule: [
       [remove ["```" any space lf] insert {<pre><code>^/"} to copy tag "```^/" remove tag insert "</code></pre>^/"]
     | [remove ["```" copy lang to [any space lf]] insert {<pre><code class="} insert (lang) insert {">^/} to copy tag "```^/" remove tag insert "</code></pre>^/"]
 ]
 
-;parse code block
 block-code-rule: [
     remove [copy indent some [space | tab]] insert "<pre><code>^/" some [to lf [
           [lf remove lf insert "</code></pre>^/" break]
@@ -54,7 +50,6 @@ block-code-rule: [
         | lf]]
 ]
 
-;parse quote
 quote-rule: [
     remove [copy indent [">" some space]] insert "<blockquote>" some [to lf [
           [remove [lf lf] insert "</blockquote>^/" break]
@@ -62,7 +57,6 @@ quote-rule: [
         | lf]]
 ]
 
-;parse list
 ulist-rule: [
     remove [copy indent [["*" | "-" | "+"] some space]] insert "<ul><li>" some [to lf [
           [remove [lf lf] insert "</li></ul>^/" break]
@@ -70,7 +64,6 @@ ulist-rule: [
         | lf]]
 ]
 
-;parse list
 olist-rule: [
     remove [digital "." some space] insert "<ol><li>" some [to lf [
           [remove [lf lf] insert "</li></ol>^/" break]
@@ -78,25 +71,21 @@ olist-rule: [
         | lf]]
 ]
 
-;code inline rule
 code-inline-rule: [
     to copy tag "`" start: tag to tag :start
     remove tag insert "<code>" to tag remove tag insert "</code>"
 ]
 
-;emphasis inline rule
 emphasis-inline-rule: [
     to copy tag ["*" | "_"] start: tag to tag :start
     remove tag insert "<em>" to tag remove tag insert "</em>"
 ]
 
-;strong inline rule
 strong-inline-rule: [
     to copy tag ["**" | "__"] start: tag to tag :start
     remove tag insert "<strong>" to tag remove tag insert "</strong>"
 ]
 
-;link inline rule
 link-inline-rule: [
       to "![" remove ["![" copy text to "](" "](" copy link to ")" ")" (
         title: none 
@@ -136,5 +125,5 @@ set 'parse-markdown function [str [string!] return: [string!]] [
     str
 ]
 
-];context end
+]
 

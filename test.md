@@ -19,11 +19,11 @@ _emphasis_ *emphasis*
 
 link test:
 
-This is an [example link](http://example.com/).
+This is an [my blog](http://www.bitbegin.com/).
 
-This is an [example link with title](http://example.com/ "example title").
+This is an [my blog](http://www.bitbegin.com/ "bitbegin blog").
 
-This is an image link ![alt text](http://path/to/img.jpg "Title")
+This is an image link ![alt text](http://c.hiphotos.baidu.com/baike/c0%3Dbaike92%2C5%2C5%2C92%2C30/sign=7c1a698b097b020818c437b303b099b6/d4628535e5dde71182f302d8a4efce1b9d1661fe.jpg "Title")
 
 # h1
 
