@@ -8,13 +8,13 @@ __strong text__ **strong**
 
 **strong** __strong text__
 
-*emphasis* _emphasis_
+*emphasis* _emphasis_ 
 
 _emphasis_ *emphasis*
 
 **strong** *emphasis* 
 
-**strong** _emphasis_
+**strong** _emphasis_ `code` **strong** __strong text__ `code` `code`
 
 
 link test:
@@ -44,6 +44,15 @@ para 3
 2. list 2
 3. list 3
 
+3. list 1
+2. list 2
+1. list 3
+
+
+* un order list 1
+* un order list 2
+* un order list 3
+
 * un order list 1
 * un order list 2
 * un order list 3
@@ -52,8 +61,12 @@ para 3
 
 para 4
 
+quote test:
+
 > blockquote tests 1.
 > blockquote tests 2.
+
+test 2:
 
 > blockquote tests. This is a "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum" test.
 

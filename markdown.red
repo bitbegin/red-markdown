@@ -1,6 +1,6 @@
 Red [
     Title: "markdown parser in red"
-    Version: 0.1.0
+    Version: 0.2.0
     Author: "bitbegin"
     Purpose: {
         A very small markdown parser written in red.
@@ -15,8 +15,8 @@ nochar: charset " ^-^/"
 chars: complement nochar
 digital: charset "0123456789"
 
-rules: [
-      lf (last-rule-is-lf: true buffers: copy "")
+main-rules: [
+      lf
     | header-rule
     | quote-rule
     | ulist-rule
@@ -24,102 +24,76 @@ rules: [
     | lang-code-rule
     | block-code-rule
     | para-rule
-    | skip
+    | skip thru lf
 ]
 
 ;parse header
 header-rule: [
-      "######" some space copy header-text to [any [some space any "#"] lf] lf keep ("<h6>") keep (inline-format copy header-text) keep ("</h6>^/") 
-    | "#####" some space copy header-text to [any [some space any "#"] lf] lf keep ("<h5>") keep (inline-format copy header-text) keep ("</h5>^/") 
-    | "####" some space copy header-text to [any [some space any "#"] lf] lf keep ("<h4>") keep (inline-format copy header-text) keep ("</h4>^/") 
-    | "###" some space copy header-text to [any [some space any "#"] lf] lf keep ("<h3>") keep (inline-format copy header-text) keep ("</h3>^/") 
-    | "##" some space copy header-text to [any [some space any "#"] lf] lf keep ("<h2>") keep (inline-format copy header-text) keep ("</h2>^/") 
-    | "#" some space copy header-text to [any [some space any "#"] lf] lf keep ("<h1>") keep (inline-format copy header-text) keep ("</h1>^/") 
+      remove ["#" some space] insert ("<h1>") to copy tag [any [some space any "#"] lf] remove tag insert "</h1>^/"
+    | remove ["##" some space] insert ("<h2>") to copy tag [any [some space any "#"] lf] remove tag insert "</h2>^/"
+    | remove ["###" some space] insert ("<h3>") to copy tag [any [some space any "#"] lf] remove tag insert "</h3>^/"
+    | remove ["####" some space] insert ("<h4>") to copy tag [any [some space any "#"] lf] remove tag insert "</h4>^/"
+    | remove ["#####" some space] insert ("<h5>") to copy tag [any [some space any "#"] lf] remove tag insert "</h5>^/"
+    | remove ["######" some space] insert ("<h6>") to copy tag [any [some space any "#"] lf] remove tag insert "</h6>^/"
 ]
 
 ;parse paragraph
-para-rule: [copy para to 2 lf 2 lf keep ("<p>") keep (inline-format copy para) keep ("</p>^/")]
+para-rule: [insert "<p>" to 2 lf remove 2 lf insert "</p>^/"]
 
 ;parse lang code
 lang-code-rule: [
-    "```" copy lang to lf lf copy codes to "```^/" "```^/" (debug ["lang:" lang])
-    keep (append (append {<pre><code class="} lang) {">^/}) keep (codes) keep ("</code></pre>^/")
+      [remove ["```" any space lf] insert {<pre><code>^/"} to copy tag "```^/" remove tag insert "</code></pre>^/"]
+    | [remove ["```" copy lang to [any space lf]] insert {<pre><code class="} insert (lang) insert {">^/} to copy tag "```^/" remove tag insert "</code></pre>^/"]
 ]
 
 ;parse code block
 block-code-rule: [
-    copy indent some [space | tab] copy codes to [lf [chars | lf]] lf (debug ["codes:^/" codes])
-    keep (append (append copy "<pre><code>^/" indent) codes) keep ("</code></pre>^/")
+    remove [copy indent some [space | tab]] insert "<pre><code>^/" some [to lf [
+          [lf remove lf insert "</code></pre>^/" break]
+        | [lf remove indent]
+        | lf]]
 ]
 
 ;parse quote
 quote-rule: [
-      [">" some space copy quote to lf lf next: [">" some space] :next (append buffers quote debug ["continue quote: " quote]) quote-rule]
-    | [">" some space copy quote to lf lf next: [lf | chars] :next keep (append buffers quote debug ["final quote: " quote] append copy "<blockquote>" buffers) keep ("</blockquote>^/")]
+    remove [copy indent [">" some space]] insert "<blockquote>" some [to lf [
+          [remove [lf lf] insert "</blockquote>^/" break]
+        | [remove [lf indent]]
+        | lf]]
 ]
 
 ;parse list
 ulist-rule: [
-      [copy tag ["*" | "-" | "+"] some space copy list to lf lf next: [tag some space] :next (append buffers append (append copy "<li>" list) "</li>" debug ["continue list: " list]) ulist-rule]
-    | [copy tag ["*" | "-" | "+"] some space copy list to lf lf next: [lf | chars] :next keep (append buffers append (append copy "<li>" list) "</li>" debug ["final list: " list] append copy "<ul>" buffers) keep ("</ul>^/")]
+    remove [copy indent [["*" | "-" | "+"] some space]] insert "<ul><li>" some [to lf [
+          [remove [lf lf] insert "</li></ul>^/" break]
+        | [remove [lf indent] insert "</li><li>"]
+        | lf]]
 ]
 
 ;parse list
 olist-rule: [
-      [some digital "." some space copy list to lf lf next: [some digital "." some space] :next (append buffers append (append copy "<li>" list) "</li>" debug ["continue list: " list]) olist-rule]
-    | [some digital "." some space copy list to lf lf next: [lf | chars] :next keep (append buffers append (append copy "<li>" list) "</li>" debug ["final list: " list] append copy "<ol>" buffers) keep ("</ol>^/")]
-]
-
-;inline format
-inline-format: function [buff [string!] return: [string!]][
-    code-format buff
-    ;debug ["code-format:" lf buff]
-    strong-format buff
-    ;debug ["strong-format:" lf buff]
-    emphasis-format buff
-    ;debug ["emphasis-format:" lf buff]
-    link-format buff
-    ;debug ["link-format:" lf buff]
-    buff
-]
-
-;parse code inline
-code-format: function [buff [string!] return: [string!]][
-    parse buff [any code-inline-rule]
+    remove [digital "." some space] insert "<ol><li>" some [to lf [
+          [remove [lf lf] insert "</li></ol>^/" break]
+        | [remove [lf digital "." some space] insert "</li><li>"]
+        | lf]]
 ]
 
 ;code inline rule
 code-inline-rule: [
-    to copy tag "`" start: tag to tag tag :start
+    to copy tag "`" start: tag to tag :start (print "code inline")
     remove tag insert "<code>" to tag remove tag insert "</code>"
-]
-
-;parse emphasis inline
-emphasis-format: function [buff [string!] return: [string!]][
-    parse buff [any emphasis-inline-rule]
 ]
 
 ;emphasis inline rule
 emphasis-inline-rule: [
-    to copy tag ["*" | "_"] start: tag to tag tag :start
+    to copy tag ["*" | "_"] start: tag to tag :start (print "emphasis inline")
     remove tag insert "<em>" to tag remove tag insert "</em>"
-]
-
-;parse strong inline
-strong-format: function [buff [string!] return: [string!]][
-    parse buff [any strong-inline-rule]
 ]
 
 ;strong inline rule
 strong-inline-rule: [
-    to copy tag ["**" | "__"] start: tag to tag tag :start
+    to copy tag ["**" | "__"] start: tag to tag :start (print "strong inline")
     remove tag insert "<strong>" to tag remove tag insert "</strong>"
-]
-
-
-;parse link inline
-link-format: function [buff [string!] return: [string!]][
-    parse buff [any link-inline-rule]
 ]
 
 ;link inline rule
@@ -150,8 +124,16 @@ link-inline-rule: [
         if (title)][insert {<a href="} insert (link) insert {" title=} insert (title) insert {>} insert (text) insert {</a>}] 
 ]
 
+parse-code-inline: [
+    thru copy btag ["<p>" | "<h1>" | "<h2>" | "<h3>" | "<h4>" | "<h5>" | "<h6>"] (btag: head insert next btag "/" print btag) copy inline-text start: to btag 
+        :start remove to btag
+            insert (parse inline-text [ahead any code-inline-rule ahead any strong-inline-rule ahead any emphasis-inline-rule any link-inline-rule] inline-text)]
+
+
 set 'parse-markdown function [str [string!] return: [string!]] [
-    parse str [collect [any rules]]
+    parse str [any main-rules]
+    parse str [any parse-code-inline]
+    str
 ]
 
 ];context end
