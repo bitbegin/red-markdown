@@ -38,7 +38,7 @@ header-rule: [
 ]
 
 ;parse paragraph
-para-rule: [insert "<p>" to 2 lf remove 2 lf insert "</p>^/"]
+para-rule: [ahead [to lf] insert "<p>" to 2 lf remove 2 lf insert "</p>^/"]
 
 ;parse lang code
 lang-code-rule: [
