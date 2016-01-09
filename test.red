@@ -6,7 +6,7 @@ Red [
 do %markdown.red
 
 str: read %test.md
-parse-markdown str
+res: parse-markdown str
 
 
 html-head: {
@@ -41,5 +41,5 @@ html-tail: {
 </body></html>
 }
 
-head insert tail insert str html-head html-tail
-write %out.html str
+head insert tail insert res html-head html-tail
+write %out.html res
